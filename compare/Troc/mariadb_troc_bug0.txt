@@ -1,0 +1,426 @@
+-BUG 0 待验证;手动验证结果与模拟结果一致；因事务阻塞导致的BUG ② 1
+01/12 06:09:34.072 INFO troc.TrocChecker main: Check new schedule.
+01/12 06:09:36.132 INFO troc.TxnPairExecutor Thread-336: 1-1: time out
+01/12 06:09:40.512 INFO troc.TrocChecker main: txp: 12, all case: 113, skip: 8
+01/12 06:09:40.513 INFO troc.TrocChecker main: Error: Inconsistent query result
+01/12 06:09:40.513 INFO troc.TrocChecker main: query: SELECT c0 FROM t WHERE c0
+01/12 06:09:40.513 INFO troc.TrocChecker main: =============================BUG REPORT
+ -- Create Table SQL: CREATE TABLE t(c0 CHAR(4), c1 VARCHAR(2)) 
+ -- InitializeStatements:
+	INSERT IGNORE INTO t(c0) VALUES ("7");
+	INSERT INTO t(c0) VALUES ("T4rJ");
+	INSERT IGNORE INTO t(c0, c1) VALUES ("", "0.");
+	CREATE INDEX i0 ON t (c1(5));
+	INSERT IGNORE INTO t(c0, c1) VALUES ("8598", "?s");
+	INSERT INTO t(c0, c1) VALUES ("&XCF", "Q");
+	INSERT INTO t(c0, c1) VALUES ("X>", "");
+	INSERT INTO t(c0, c1) VALUES ("[", "Jo");
+ -- Initial Table: 
+View{
+	1:[7, null]
+	2:[T4rJ, null]
+	3:[, 0.]
+	4:[8598, ?s]
+	5:[&XCF, Q]
+	6:[X>, ]
+	7:[[, Jo]
+}
+
+ -- Tx1: Transaction{1, READ_COMMITTED}, with statements:
+	BEGIN;
+	UPDATE t SET c0="" WHERE (c1) LIKE (c1);
+	SELECT c0 FROM t WHERE c0;
+	SELECT c0, c1 FROM t WHERE ("0.4506030642974982") - ((3.20852349E8) + (NULL)) FOR UPDATE;
+	INSERT IGNORE INTO t(c1) VALUES ("0.");
+	SELECT c0 FROM t WHERE (c0) & (c0) LOCK IN SHARE MODE;
+	COMMIT;
+
+ -- Tx2: Transaction{2, REPEATABLE_READ}, with statements:gennnnnnnnnnnnnnnnnnn
+	BEGIN;
+	SELECT c0, c1 FROM t WHERE REVERSE(((!(c0)) AND (-33689623))) FOR UPDATE;
+	UPDATE t SET c1="Xk" WHERE -8.91375822E8;
+	DELETE FROM t WHERE c1;
+	COMMIT;
+
+ -- Input Schedule: 2-1-2-2-1-1-2-1-1-1-1-2
+ -- Submitted Order: [2-0, 1-0, 2-1, 2-2, 1-1, 1-2, 2-3, 1-3, 1-4, 1-5, 1-6, 2-4]
+ -- Execution Result: Result:
+Order:[2-0, 1-0, 2-1, 2-2, 1-1(B), 2-3, 2-4, 1-1, 1-2, 1-3, 1-4, 1-5, 1-6]
+Query Results:
+	2-0: null
+	1-0: null
+	2-1: [T4rJ, null, , 0., &XCF, Q, X>, , [, Jo]
+	2-2: null
+	1-1: null
+	2-3: null
+	2-4: null
+	1-1: null
+	1-2: [7]
+	1-3: []
+	1-4: null
+	1-5: [7]
+	1-6: null
+FinalState: [7, Xk, T4rJ, Xk, , Xk, , Xk, , Xk, , Xk, , Xk, null, 0.]
+DeadBlock: false
+
+ -- Inferred Result: Result:
+Order:[2-0, 1-0, 2-1, 2-2, 1-1(B), 2-3, 2-4, 1-1, 1-2, 1-3, 1-4, 1-5, 1-6]
+Query Results:
+	2-0: null
+	1-0: null
+	2-1: [T4rJ, null, , 0., &XCF, Q, X>, , [, Jo]
+	2-2: null
+	1-1: null
+	2-3: null
+	2-4: null
+	1-1: null
+	1-2: []
+	1-3: []
+	1-4: null
+	1-5: []
+	1-6: null
+FinalState: [, Xk, , Xk, , Xk, , Xk, , Xk, , Xk, , Xk, null, 0.]
+DeadBlock: false
+
+
+因阻塞导致的误报② 2
+-BUG 1 待验证应该不是BUG，事务1RC的1-1在实际执行被挂掉了;情况是这样的，在这个例子中，事务1-1第一次执行时会被挂起直到事务2执行完，如果事务1-1第二次再执行，那么就是模拟结果，如果事务1-1沿着被挂起的继续执行，就是实际执行结果，但并非BUG
+01/12 07:04:09.075 INFO troc.TrocChecker main: Check new schedule.
+01/12 07:04:11.156 INFO troc.TxnPairExecutor Thread-9: 1-1: time out
+01/12 07:04:16.044 INFO troc.TrocChecker main: txp: 1, all case: 4, skip: 0
+01/12 07:04:16.046 INFO troc.TrocChecker main: Error: Inconsistent final database state
+01/12 07:04:16.047 INFO troc.TrocChecker main: =============================BUG REPORT
+ -- Create Table SQL: CREATE TABLE t(c0 INT, c1 FLOAT, c2 INT, c3 INT, c4 CHAR(10), c5 INT UNIQUE) 
+ -- InitializeStatements:
+	INSERT INTO t(c5, c1) VALUES (1130919698, 0.2743645676173231);
+	INSERT IGNORE INTO t(c3, c4, c5, c1, c2) VALUES (1130919698, "(|w)", 1130919698, 1.130919698E9, 262388085);
+	INSERT IGNORE INTO t(c3) VALUES (262388085);
+	INSERT IGNORE INTO t(c3, c4, c5, c0, c1) VALUES (1341955738, "", -9223372036854775808, 1130919698, 0.5162558070837866);
+	INSERT IGNORE INTO t(c5) VALUES (-1889883193);
+	INSERT INTO t(c1) VALUES (0.8547512969138042);
+	INSERT IGNORE INTO t(c0, c1) VALUES (-571988367, 0.06214454618303655);
+	INSERT INTO t(c3, c5, c0, c1, c2) VALUES (1130919698, 1154027111, 362233674, 0.2743645676173231, 909660635);
+	INSERT IGNORE INTO t(c2) VALUES (-1966804491);
+ -- Initial Table: 
+View{
+	1:[null, 0.274365, null, null, null, 1130919698]
+	2:[null, null, null, 262388085, null, null]
+	3:[1130919698, 0.516256, null, 1341955738, , -2147483648]
+	4:[null, null, null, null, null, -1889883193]
+	5:[null, 0.854751, null, null, null, null]
+	6:[-571988367, 0.0621445, null, null, null, null]
+	7:[362233674, 0.274365, 909660635, 1130919698, null, 1154027111]
+	8:[null, null, -1966804491, null, null, null]
+}
+
+ -- Tx1: Transaction{1, READ_COMMITTED}, with statements:
+	BEGIN;
+	UPDATE t SET c0=1236346120 WHERE c2;
+	SELECT c5 FROM t WHERE 0.8681094951728466 FOR UPDATE;
+	UPDATE t SET c4="" WHERE c2;
+	COMMIT;
+
+ -- Tx2: Transaction{2, READ_UNCOMMITTED}, with statements:
+	BEGIN;
+	SELECT c4, c5, c0, c1 FROM t WHERE 0.8681094951728466;
+	UPDATE t SET c3=-1175299008, c1=0.7788239744605177, c2=46684769 WHERE c3;
+	UPDATE t SET c3=2136953464, c2=306341833 WHERE c1;
+	UPDATE t SET c5=-1333787995, c2=-1868262525 WHERE (c2) AND (NOT(c3));
+	COMMIT;
+
+ -- Input Schedule: 2-2-2-1-2-1-1-1-2-1-2
+ -- Submitted Order: [2-0, 2-1, 2-2, 1-0, 2-3, 1-1, 1-2, 1-3, 2-4, 1-4, 2-5]
+ -- Execution Result: Result:
+Order:[2-0, 2-1, 2-2, 1-0, 2-3, 1-1(B), 2-4, 2-5, 1-1, 1-2, 1-3, 1-4]
+Query Results:
+	2-0: null
+	2-1: [null, 1130919698, null, 0.274365, null, null, null, null, , -2147483648, 1130919698, 0.516256, null, -1889883193, null, null, null, null, null, 0.854751, null, null, -571988367, 0.0621445, null, 1154027111, 362233674, 0.274365, null, null, null, null]
+	2-2: null
+	1-0: null
+	2-3: null
+	1-1: null
+	2-4: null
+	2-5: null
+	1-1: null
+	1-2: [null, null, null, null, -2147483648, -1889883193, 1130919698, 1154027111]
+	1-3: null
+	1-4: null
+FinalState: [null, 0.274365, 306341833, 2136953464, , 1130919698, null, 0.778824, 306341833, 2136953464, , null, 1130919698, 0.778824, 306341833, 2136953464, , -2147483648, null, null, null, null, null, -1889883193, null, 0.854751, 306341833, 2136953464, , null, -571988367, 0.0621445, 306341833, 2136953464, , null, 1236346120, 0.778824, 306341833, 2136953464, , 1154027111, 1236346120, null, -1966804491, null, , null]
+DeadBlock: false
+
+ -- Inferred Result: Result:
+Order:[2-0, 2-1, 2-2, 1-0, 2-3, 1-1(B), 2-4, 2-5, 1-1, 1-2, 1-3, 1-4]
+Query Results:
+	2-0: null
+	2-1: [null, 1130919698, null, 0.274365, null, null, null, null, , -2147483648, 1130919698, 0.516256, null, -1889883193, null, null, null, null, null, 0.854751, null, null, -571988367, 0.0621445, null, 1154027111, 362233674, 0.274365, null, null, null, null]
+	2-2: null
+	1-0: null
+	2-3: null
+	1-1: null
+	2-4: null
+	2-5: null
+	1-1: null
+	1-2: [null, null, null, null, -2147483648, -1889883193, 1130919698, 1154027111]
+	1-3: null
+	1-4: null
+FinalState: [1236346120, 0.274365, 306341833, 2136953464, , 1130919698, 1236346120, 0.778824, 306341833, 2136953464, , null, 1236346120, 0.778824, 306341833, 2136953464, , -2147483648, null, null, null, null, null, -1889883193, 1236346120, 0.854751, 306341833, 2136953464, , null, 1236346120, 0.0621445, 306341833, 2136953464, , null, 1236346120, 0.778824, 306341833, 2136953464, , 1154027111, 1236346120, null, -1966804491, null, , null]
+DeadBlock: false
+
+
+
+因隔离级别判断有误导致的误报① 1
+-BUG 2 不是BUG，事务2RU读到了事务1的UPDATE
+01/13 06:02:26.593 INFO troc.TrocChecker main: Check new schedule.
+01/13 06:02:28.701 INFO troc.TxnPairExecutor Thread-378: 1-3: time out
+01/13 06:02:38.983 INFO troc.TrocChecker main: txp: 13, all case: 127, skip: 13
+01/13 06:02:38.984 INFO troc.TrocChecker main: Error: Inconsistent query result
+01/13 06:02:38.984 INFO troc.TrocChecker main: query: SELECT c0, c1, c2 FROM t WHERE LOWER((1966490802))
+01/13 06:02:38.984 INFO troc.TrocChecker main: =============================BUG REPORT
+ -- Create Table SQL: CREATE TABLE t(c0 VARCHAR(1), c1 CHAR(10), c2 FLOAT) 
+ -- InitializeStatements:
+	INSERT IGNORE INTO t(c0, c1, c2) VALUES ("", "~kx", 0.9133268612432838);
+	INSERT IGNORE INTO t(c0, c1) VALUES ("D", "<?");
+	INSERT INTO t(c0, c1, c2) VALUES ("b", "z5F_>/E", 0.8982439604532196);
+	INSERT INTO t(c0, c2) VALUES ("", 0.9680482287557406);
+	INSERT IGNORE INTO t(c0) VALUES ("z");
+	INSERT INTO t(c0, c1, c2) VALUES ("", "965920413", 0.956738959401838);
+	INSERT INTO t(c0, c1, c2) VALUES ("-", "", 5.50749667E8);
+	INSERT IGNORE INTO t(c0, c2) VALUES ("&", 0.5694708740852344);
+	INSERT IGNORE INTO t(c0, c1, c2) VALUES ("C", "-239140594", 0.7201943991705988);
+ -- Initial Table: 
+View{
+	1:[, ~kx, 0.913327]
+	2:[D, <?, null]
+	3:[b, z5F_>/E, 0.898244]
+	4:[, null, 0.968048]
+	5:[z, null, null]
+	6:[, 965920413, 0.956739]
+	7:[-, , 5.5075002E8]
+	8:[&, null, 0.569471]
+	9:[C, -239140594, 0.720194]
+}
+
+ -- Tx1: Transaction{1, READ_COMMITTED}, with statements:
+	BEGIN;
+	SELECT c1 FROM t WHERE NULL LOCK IN SHARE MODE;
+	SELECT c0, c2 FROM t WHERE c0;
+	UPDATE t SET c0="/", c1="RIx" WHERE ("-847685266") OR ((((c2) IN ((0), (0.47104715421270826), (c1))) BETWEEN (c0) AND ((c1) = (c2))) ^ ((0.5349593828995579) + ((c1) OR ("V?rw&?"))));
+	UPDATE t SET c0="c", c1="cZ", c2=0.9680482287557406 WHERE 237284085;
+	ROLLBACK;
+
+ -- Tx2: Transaction{2, READ_UNCOMMITTED}, with statements:
+	BEGIN;
+	SELECT c0, c1, c2 FROM t WHERE c1 LOCK IN SHARE MODE;
+	SELECT c0, c1, c2 FROM t WHERE LOWER((1966490802));
+	SELECT c2 FROM t WHERE NULL FOR UPDATE;
+	SELECT c0, c2 FROM t WHERE c2;
+	UPDATE t SET c2=0.22983642867274268 WHERE (NULL) >= (c1);
+	COMMIT;
+
+ -- Input Schedule: 1-2-1-2-1-1-1-2-2-1-2-2-2
+ -- Submitted Order: [1-0, 2-0, 1-1, 2-1, 1-2, 1-3, 1-4, 2-2, 2-3, 1-5, 2-4, 2-5, 2-6]
+ -- Execution Result: Result:
+Order:[1-0, 2-0, 1-1, 2-1, 1-2, 1-3(B), 2-2, 2-3, 2-4, 2-5, 2-6, 1-3, 1-4, 1-5]
+Query Results:
+	1-0: null
+	2-0: null
+	1-1: []
+	2-1: [, 965920413, 0.956739, C, -239140594, 0.720194]
+	1-2: []
+	1-3: null
+	2-2: [/, RIx, 0.913327, /, RIx, null, /, RIx, 0.898244, /, RIx, 0.968048, /, RIx, null, , 965920413, 0.956739, -, , 5.5075002E8, &, null, 0.569471, C, -239140594, 0.720194]
+	2-3: []
+	2-4: [/, 0.913327, /, 0.898244, /, 0.968048, , 0.956739, -, 5.5075002E8, &, 0.569471, C, 0.720194]
+	2-5: null
+	2-6: null
+	1-3: null
+	1-4: null
+	1-5: null
+FinalState: [, ~kx, 0.913327, D, <?, null, b, z5F_>/E, 0.898244, , null, 0.968048, z, null, null, , 965920413, 0.956739, -, , 5.5075002E8, &, null, 0.569471, C, -239140594, 0.720194]
+DeadBlock: false
+
+ -- Inferred Result: Result:
+Order:[1-0, 2-0, 1-1, 2-1, 1-2, 1-3(B), 2-2, 2-3, 2-4, 2-5, 2-6, 1-3, 1-4, 1-5]
+Query Results:
+	1-0: null
+	2-0: null
+	1-1: []
+	2-1: [, 965920413, 0.956739, C, -239140594, 0.720194]
+	1-2: []
+	1-3: null
+	2-2: [, ~kx, 0.913327, D, <?, null, b, z5F_>/E, 0.898244, , null, 0.968048, z, null, null, , 965920413, 0.956739, -, , 5.5075002E8, &, null, 0.569471, C, -239140594, 0.720194]
+	2-3: []
+	2-4: [, 0.913327, b, 0.898244, , 0.968048, , 0.956739, -, 5.5075002E8, &, 0.569471, C, 0.720194]
+	2-5: null
+	2-6: null
+	1-3: null
+	1-4: null
+	1-5: null
+FinalState: [, ~kx, 0.913327, D, <?, null, b, z5F_>/E, 0.898244, , null, 0.968048, z, null, null, , 965920413, 0.956739, -, , 5.5075002E8, &, null, 0.569471, C, -239140594, 0.720194]
+DeadBlock: false
+
+
+
+因阻塞导致的误报② 3
+-BUG 3 待验证似乎是BUG事务2RC，没有更改到应该被更改的第一个值,情况同BUG1
+01/13 10:51:42.507 INFO troc.TrocChecker main: Check new schedule.
+01/13 10:51:44.639 INFO troc.TxnPairExecutor Thread-1590: 2-4: time out
+01/13 10:51:48.721 INFO troc.TrocChecker main: txp: 54, all case: 531, skip: 59
+01/13 10:51:48.722 INFO troc.TrocChecker main: Error: Inconsistent final database state
+01/13 10:51:48.722 INFO troc.TrocChecker main: =============================BUG REPORT
+ -- Create Table SQL: CREATE TABLE t(c0 DOUBLE, c1 DOUBLE) 
+ -- InitializeStatements:
+	INSERT INTO t(c0) VALUES (0.7802338826606307);
+	INSERT IGNORE INTO t(c1) VALUES (-1.593534851E9);
+	INSERT INTO t(c0, c1) VALUES (0.7018164727417203, 0.8687867116974067);
+	INSERT IGNORE INTO t(c0, c1) VALUES (0.3414035093314488, 1.140961868E9);
+	INSERT IGNORE INTO t(c0, c1) VALUES (0.9886812782602212, -3.33189329E8);
+ -- Initial Table: 
+View{
+	1:[0.7802338826606307, null]
+	2:[null, -1.593534851E9]
+	3:[0.7018164727417203, 0.8687867116974067]
+	4:[0.3414035093314488, 1.140961868E9]
+	5:[0.9886812782602212, -3.33189329E8]
+}
+
+ -- Tx1: Transaction{1, READ_UNCOMMITTED}, with statements:
+	BEGIN;
+	SELECT c1 FROM t WHERE CAST(((("l R") >= (NULL)) IN ((0), (c1), (c0), (c0))) AS INT);
+	SELECT c0 FROM t WHERE NULL LOCK IN SHARE MODE;
+	UPDATE t SET c0=-1.40784238E8, c1=0.0364644852756445 WHERE (((!(c0)) <= (-(NULL))) / ("-1439936778")) IN ((0), ((c1) ^ ((c0) % (MID((c0), (c0), (c0))))), ((c1) > (1356930623)), (DEGREES((c1))));
+	SELECT c0, c1 FROM t WHERE -1.394354443E9 FOR UPDATE;
+	UPDATE t SET c0=0.5522990619880447, c1=0.8434404031382097 WHERE 1724711387;
+	COMMIT;
+
+ -- Tx2: Transaction{2, READ_COMMITTED}, with statements:
+	BEGIN;
+	SELECT c0, c1 FROM t WHERE -(CAST(((c0) % (CAST((c0) AS CHAR))) AS DOUBLE)) LOCK IN SHARE MODE;
+	SELECT c1 FROM t WHERE NULL;
+	SELECT c0, c1 FROM t WHERE ASIN((-1046890217)) FOR UPDATE;
+	UPDATE t SET c0=0.06199271488295777 WHERE c1;
+	COMMIT;
+
+ -- Input Schedule: 1-1-2-2-1-2-1-2-1-2-1-2-1
+ -- Submitted Order: [1-0, 1-1, 2-0, 2-1, 1-2, 2-2, 1-3, 2-3, 1-4, 2-4, 1-5, 2-5, 1-6]
+ -- Execution Result: Result:
+Order:[1-0, 1-1, 2-0, 2-1, 1-2, 2-2, 1-3, 2-3, 1-4, 2-4(B), 1-5, 1-6, 2-4, 2-5]
+Query Results:
+	1-0: null
+	1-1: []
+	2-0: null
+	2-1: []
+	1-2: []
+	2-2: []
+	1-3: null
+	2-3: []
+	1-4: [0.7802338826606307, null, null, -1.593534851E9, 0.7018164727417203, 0.8687867116974067, 0.3414035093314488, 1.140961868E9, 0.9886812782602212, -3.33189329E8]
+	2-4: null
+	1-5: null
+	1-6: null
+	2-4: null
+	2-5: null
+FinalState: [0.5522990619880447, 0.8434404031382097, 0.06199271488295777, 0.8434404031382097, 0.06199271488295777, 0.8434404031382097, 0.06199271488295777, 0.8434404031382097, 0.06199271488295777, 0.8434404031382097]
+DeadBlock: false
+
+ -- Inferred Result: Result:
+Order:[1-0, 1-1, 2-0, 2-1, 1-2, 2-2, 1-3, 2-3, 1-4, 2-4(B), 1-5, 1-6, 2-4, 2-5]
+Query Results:
+	1-0: null
+	1-1: []
+	2-0: null
+	2-1: []
+	1-2: []
+	2-2: []
+	1-3: null
+	2-3: []
+	1-4: [0.7802338826606307, null, null, -1.593534851E9, 0.7018164727417203, 0.8687867116974067, 0.3414035093314488, 1.140961868E9, 0.9886812782602212, -3.33189329E8]
+	2-4: null
+	1-5: null
+	1-6: null
+	2-4: null
+	2-5: null
+FinalState: [0.06199271488295777, 0.8434404031382097, 0.06199271488295777, 0.8434404031382097, 0.06199271488295777, 0.8434404031382097, 0.06199271488295777, 0.8434404031382097, 0.06199271488295777, 0.8434404031382097]
+DeadBlock: false
+
+
+因阻塞导致的误报② 4
+-BUG4 待验证，似乎是BUG，事务2RU的2-2没有成功更新事务1的值,情况同BUG1
+01/13 12:26:19.290 INFO troc.TrocChecker main: Check new schedule.
+01/13 12:26:21.406 INFO troc.TxnPairExecutor Thread-816: 2-2: time out
+01/13 12:26:26.748 INFO troc.TrocChecker main: txp: 28, all case: 273, skip: 27
+01/13 12:26:26.749 INFO troc.TrocChecker main: Error: Inconsistent final database state
+01/13 12:26:26.749 INFO troc.TrocChecker main: =============================BUG REPORT
+ -- Create Table SQL: CREATE TABLE t(c0 CHAR(2), c1 INT) 
+ -- InitializeStatements:
+	INSERT INTO t(c1) VALUES (1513604786);
+	INSERT IGNORE INTO t(c1) VALUES (-1123474342);
+	INSERT IGNORE INTO t(c0, c1) VALUES ("-1", 1637071817);
+	INSERT INTO t(c0, c1) VALUES ("^|", -2040582861);
+	INSERT INTO t(c1) VALUES (1242731371);
+	INSERT IGNORE INTO t(c1) VALUES (-1969577077);
+ -- Initial Table: 
+View{
+	1:[null, 1513604786]
+	2:[null, -1123474342]
+	3:[-1, 1637071817]
+	4:[^|, -2040582861]
+	5:[null, 1242731371]
+	6:[null, -1969577077]
+}
+
+ -- Tx1: Transaction{1, REPEATABLE_READ}, with statements:
+	BEGIN;
+	SELECT c1 FROM t WHERE (c0) LIKE (450454455);
+	SELECT c0 FROM t WHERE (-(591679914)) OR (c0);
+	SELECT c1 FROM t WHERE NULL;
+	UPDATE t SET c0="-8" WHERE 0.40233976395588955;
+	UPDATE t SET c0="37", c1=422873057 WHERE c0;
+	COMMIT;
+
+ -- Tx2: Transaction{2, READ_UNCOMMITTED}, with statements:
+	BEGIN;
+	SELECT c1 FROM t WHERE c1;
+	UPDATE t SET c0="16", c1=273298813 WHERE c0;
+	SELECT c1 FROM t WHERE NULL LOCK IN SHARE MODE;
+	COMMIT;
+
+ -- Input Schedule: 1-2-1-1-2-1-1-2-1-2-2-1
+ -- Submitted Order: [1-0, 2-0, 1-1, 1-2, 2-1, 1-3, 1-4, 2-2, 1-5, 2-3, 2-4, 1-6]
+ -- Execution Result: Result:
+Order:[1-0, 2-0, 1-1, 1-2, 2-1, 1-3, 1-4, 2-2(B), 1-5, 1-6, 2-2, 2-3, 2-4]
+Query Results:
+	1-0: null
+	2-0: null
+	1-1: []
+	1-2: [null, null, -1, ^|, null, null]
+	2-1: [1513604786, -1123474342, 1637071817, -2040582861, 1242731371, -1969577077]
+	1-3: []
+	1-4: null
+	2-2: null
+	1-5: null
+	1-6: null
+	2-2: null
+	2-3: []
+	2-4: null
+FinalState: [37, 422873057, 37, 422873057, 16, 273298813, 16, 273298813, 16, 273298813, 16, 273298813]
+DeadBlock: false
+
+ -- Inferred Result: Result:
+Order:[1-0, 2-0, 1-1, 1-2, 2-1, 1-3, 1-4, 2-2(B), 1-5, 1-6, 2-2, 2-3, 2-4]
+Query Results:
+	1-0: null
+	2-0: null
+	1-1: []
+	1-2: [null, null, -1, ^|, null, null]
+	2-1: [1513604786, -1123474342, 1637071817, -2040582861, 1242731371, -1969577077]
+	1-3: []
+	1-4: null
+	2-2: null
+	1-5: null
+	1-6: null
+	2-2: null
+	2-3: []
+	2-4: null
+FinalState: [16, 273298813, 16, 273298813, 16, 273298813, 16, 273298813, 16, 273298813, 16, 273298813]
+DeadBlock: false

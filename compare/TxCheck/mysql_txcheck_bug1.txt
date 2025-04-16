@@ -1,0 +1,384 @@
+数据库调度导致出现环而无法解决① 6
+-BUG 0
+transaction test
+0 T1 S0: START TRANSACTION;
+1 T2 S0: START TRANSACTION;
+2 T3 S0: START TRANSACTION;
+3 T1 S1: select     ref_0.wkey as c0,    ref_0.pkey as c1,    ref_0.c_ubo_pb as c2,    ref_0.c_ofh5ic as c3, 
+4 T2 S1: select 1 from (select 1) as subq_0 where 0 <> 0;
+5 T2 S2: select 1 from (select 1) as subq_0 where 0 <> 0;
+6 T2 S3: select 1 from (select 1) as subq_0 where 0 <> 0;
+7 T1 S2: WITH  cte_0 AS (select       ref_0.wkey as c0,      ref_0.pkey as c1,      ref_0.c_ubo_pb as c2,    
+8 T2 S4: select     ref_0.wkey as c0,    ref_0.pkey as c1,    ref_0.c_nv7nl as c2,    ref_0.c_2x9b_b as c3 fr
+9 T1 S3: ROLLBACK;
+retrying process begin...
+retrying process end...
+10 T0 S0: START TRANSACTION;
+11 T2 S5: COMMIT;
+retrying process begin...
+retrying process end...
+12 T3 S1: update t_n4yyl set    wkey = 28,    c_ubo_pb = t_n4yyl.c_dxehld,    c_xbgtqb = t_n4yyl.c_gsa9yb,    
+13 T3 S2: select 1 from (select 1) as subq_0 where 0 <> 0;
+14 T3 S3: select 1 from (select 1) as subq_0 where 0 <> 0;
+15 T3 S4: select 1 from (select 1) as subq_0 where 0 <> 0;
+16 T5 S0: START TRANSACTION;
+17 T4 S0: START TRANSACTION;
+18 T3 S5: COMMIT;
+retrying process begin...
+retrying process end...
+19 T0 S1: select 1 from (select 1) as subq_0 where 0 <> 0;
+20 T0 S2: select 1 from (select 1) as subq_0 where 0 <> 0;
+21 T0 S3: select 1 from (select 1) as subq_0 where 0 <> 0;
+22 T0 S4: select 1 from (select 1) as subq_0 where 0 <> 0;
+23 T0 S5: select 1 from (select 1) as subq_0 where 0 <> 0;
+24 T0 S6: insert into t_2kute (wkey, pkey, c_2x9b_b) values  (24, 125000, 32),  (24, 126000, 5),  (24, 127000,
+25 T0 S7: COMMIT;
+retrying process begin...
+retrying process end...
+26 T5 S1: ROLLBACK;
+retrying process begin...
+retrying process end...
+27 T4 S1: delete from t_n4yyl where  t_n4yyl.c_thh3gd between t_n4yyl.c_xbgtqb and t_n4yyl.c_gsa9yb;
+28 T4 S2: insert into t_n4yyl (wkey, pkey, c_ubo_pb, c_xbgtqb, c_thh3gd, c_dxehld, c_mprbwc) values  (36, 1510
+29 T4 S3: ROLLBACK;
+retrying process begin...
+retrying process end...
+check transaction dependency ... done
+stmt path for normal test: (0.6)-->(3.1)-->(2.4)-->
+normal testing ... done
+No
+
+
+
+
+数据库调度导致出现环而无法解决① 7
+-BUG 1
+transaction test
+0 T3 S0: START TRANSACTION;
+1 T4 S0: START TRANSACTION;
+2 T0 S0: START TRANSACTION;
+3 T4 S1: insert into t_i04ozc (wkey, pkey, c_hbnia, c_fwpjs) values  (72, 315000, 66.3, 'szgunb'),  (72, 3160
+4 T4 S2: select     t_i04ozc.wkey as c0,    t_i04ozc.pkey as c1,    t_i04ozc.c_hbnia as c2,    t_i04ozc.c_fwp
+5 T0 S1: select 1 from (select 1) as subq_0 where 0 <> 0;
+6 T0 S2: select 1 from (select 1) as subq_0 where 0 <> 0;
+7 T0 S3: select 1 from (select 1) as subq_0 where 0 <> 0;
+8 T0 S4: select 1 from (select 1) as subq_0 where 0 <> 0;
+9 T0 S5: select 1 from (select 1) as subq_0 where 0 <> 0;
+10 T0 S6: select 1 from (select 1) as subq_0 where 0 <> 0;
+11 T0 S7: SELECT * FROM t__0ajud;
+12 T0 S8: select     t__0ajud.wkey as c0,    t__0ajud.pkey as c1,    t__0ajud.c_ie4h as c2,    t__0ajud.c_vgyf
+13 T0 S9: update t__0ajud set    wkey = 53,    c_vgyfqc = PI(),    c_87n_ab = t__0ajud.c_9g272b where (t__0aju
+14 T0 S10: select     t__0ajud.wkey as c0,    t__0ajud.pkey as c1,    t__0ajud.c_ie4h as c2,    t__0ajud.c_vgyf
+15 T3 S1: SELECT * FROM t_ytx1t;
+16 T3 S2: insert into t_i04ozc (wkey, pkey, c_fwpjs) values  (67, 287000, LEFT(   null,   91)),  (67, 288000, 
+17 T3 S3: select     t_i04ozc.wkey as c0,    t_i04ozc.pkey as c1,    t_i04ozc.c_hbnia as c2,    t_i04ozc.c_fwp
+18 T0 S11: COMMIT;
+retrying process begin...
+retrying process end...
+19 T3 S4: SELECT * FROM t__0ajud;
+20 T3 S5: insert into t_i04ozc (wkey, pkey, c_hbnia, c_fwpjs) values  (71, 312000, (select avg(c_vgyfqc) from 
+21 T3 S6: select     t_i04ozc.wkey as c0,    t_i04ozc.pkey as c1,    t_i04ozc.c_hbnia as c2,    t_i04ozc.c_fwp
+22 T2 S0: START TRANSACTION;
+23 T3 S7: COMMIT;
+retrying process begin...
+retrying process end...
+24 T4 S3: select 1 from (select 1) as subq_0 where 0 <> 0;
+25 T4 S4: select 1 from (select 1) as subq_0 where 0 <> 0;
+26 T4 S5: select 1 from (select 1) as subq_0 where 0 <> 0;
+27 T4 S6: select 1 from (select 1) as subq_0 where 0 <> 0;
+28 T1 S0: START TRANSACTION;
+29 T2 S1: insert into t_i04ozc (wkey, pkey, c_hbnia, c_fwpjs) values  (61, 272000, 34.4, 'fkfkrc'),  (61, 2730
+30 T2 S2: select     t_i04ozc.wkey as c0,    t_i04ozc.pkey as c1,    t_i04ozc.c_hbnia as c2,    t_i04ozc.c_fwp
+31 T4 S7: COMMIT;
+retrying process begin...
+retrying process end...
+32 T2 S3: select 1 from (select 1) as subq_0 where 0 <> 0;
+33 T2 S4: select 1 from (select 1) as subq_0 where 0 <> 0;
+34 T2 S5: select 1 from (select 1) as subq_0 where 0 <> 0;
+35 T2 S6: select 1 from (select 1) as subq_0 where 0 <> 0;
+36 T2 S7: select 1 from (select 1) as subq_0 where 0 <> 0;
+37 T1 S1: SELECT * FROM t__0ajud;
+38 T1 S2: SELECT * FROM t_i04ozc;
+39 T1 S3: SELECT * FROM t_ytx1t;
+40 T1 S4: WITH  cte_0 AS (select       ref_0.wkey as c0,      ref_0.pkey as c1,      ref_0.c_qn1yv as c2,     
+41 T2 S8: COMMIT;
+retrying process begin...
+retrying process end...
+42 T1 S5: SELECT * FROM t_i04ozc;
+43 T1 S6: insert into t__0ajud (wkey, pkey, c_vgyfqc, c_9g272b, c_87n_ab) values  (59, 262000, (select c_hbnia
+44 T1 S7: select     t__0ajud.wkey as c0,    t__0ajud.pkey as c1,    t__0ajud.c_ie4h as c2,    t__0ajud.c_vgyf
+45 T5 S0: START TRANSACTION;
+46 T1 S8: ROLLBACK;
+retrying process begin...
+retrying process end...
+47 T5 S1: SELECT * FROM t_i04ozc;
+48 T5 S2: select     t_i04ozc.wkey as c0,    t_i04ozc.pkey as c1,    t_i04ozc.c_hbnia as c2,    t_i04ozc.c_fwp
+49 T5 S3: delete from t_i04ozc where  t_i04ozc.pkey = t_i04ozc.pkey;
+50 T5 S4: SELECT * FROM t_i04ozc;
+51 T5 S5: SELECT * FROM t_ytx1t;
+52 T5 S6: select     t_ytx1t.wkey as c0,    t_ytx1t.pkey as c1,    t_ytx1t.c_qn1yv as c2,    t_ytx1t.c_valwlb 
+53 T5 S7: update t_ytx1t set    wkey = 81,    c_valwlb = (select c_fwpjs from t_i04ozc order by c_fwpjs limit 
+54 T5 S8: select     t_ytx1t.wkey as c0,    t_ytx1t.pkey as c1,    t_ytx1t.c_qn1yv as c2,    t_ytx1t.c_valwlb 
+55 T5 S9: ROLLBACK;
+retrying process begin...
+retrying process end...
+check transaction dependency ... done
+the test case contains cycle and cannot be properly sorted
+No
+
+
+
+
+数据库调度导致出现环而无法解决① 8
+-BUG 2
+transaction test
+0 T4 S0: START TRANSACTION;
+1 T3 S0: START TRANSACTION;
+2 T4 S1: SELECT * FROM t_fuaclc;
+3 T4 S2: SELECT * FROM t_mivbu;
+4 T4 S3: select     ref_0.wkey as c0,    ref_0.pkey as c1,    ref_0.c_ik58hd as c2 from    t_mivbu as ref_0 w
+5 T2 S0: START TRANSACTION;
+6 T3 S1: select 1 from (select 1) as subq_0 where 0 <> 0;
+7 T3 S2: select 1 from (select 1) as subq_0 where 0 <> 0;
+8 T4 S4: SELECT * FROM t_fuaclc;
+9 T4 S5: SELECT * FROM t_mivbu;
+10 T4 S6: select     ref_0.wkey as c0,    ref_0.pkey as c1,    ref_0.c_ik58hd as c2 from    t_mivbu as ref_0 w
+11 T2 S1: SELECT * FROM t_fuaclc;
+12 T2 S2: SELECT * FROM t_mivbu;
+13 T2 S3: WITH  cte_0 AS (select       ref_0.wkey as c0,      ref_0.pkey as c1,      ref_0.c_ik58hd as c2   fr
+14 T3 S3: SELECT * FROM t_fuaclc;
+15 T3 S4: insert into t_mivbu (wkey, pkey, c_ik58hd) values  (85, 428000, 91.92),  (85, 429000, 41.97),  (85, 
+16 T3 S5: select     t_mivbu.wkey as c0,    t_mivbu.pkey as c1,    t_mivbu.c_ik58hd as c2 from    t_mivbu wher
+17 T3 S6: COMMIT;
+retrying process begin...
+retrying process end...
+18 T0 S0: START TRANSACTION;
+19 T2 S4: SELECT * FROM t_fuaclc;
+20 T2 S5: SELECT * FROM t_mivbu;
+21 T2 S6: select     t_mivbu.wkey as c0,    t_mivbu.pkey as c1,    t_mivbu.c_ik58hd as c2 from    t_mivbu wher
+22 T2 S7: update t_mivbu set    wkey = 78,    c_ik58hd = PI() where t_mivbu.wkey between (select wkey from t_f
+23 T2 S8: select     t_mivbu.wkey as c0,    t_mivbu.pkey as c1,    t_mivbu.c_ik58hd as c2 from    t_mivbu wher
+24 T4 S7: COMMIT;
+retrying process begin...
+retrying process end...
+25 T5 S0: START TRANSACTION;
+26 T2 S9: COMMIT;
+retrying process begin...
+retrying process end...
+27 T0 S1: SELECT * FROM t_fuaclc;
+28 T0 S2: select     t_fuaclc.wkey as c0,    t_fuaclc.pkey as c1,    t_fuaclc.c_sms4ob as c2,    t_fuaclc.c_6f
+29 T0 S3: update t_fuaclc set    wkey = 74,    c_osfw2c = t_fuaclc.c_6fc4nc where t_fuaclc.wkey < t_fuaclc.pke
+30 T0 S4: select     t_fuaclc.wkey as c0,    t_fuaclc.pkey as c1,    t_fuaclc.c_sms4ob as c2,    t_fuaclc.c_6f
+31 T5 S1: SELECT * FROM t_fuaclc;
+32 T5 S2: SELECT * FROM t_mivbu;
+33 T5 S3: WITH  cte_0 AS (select       ref_0.wkey as c0,      ref_0.pkey as c1,      ref_0.c_sms4ob as c2,    
+34 T0 S5: select 1 from (select 1) as subq_0 where 0 <> 0;
+35 T0 S6: select 1 from (select 1) as subq_0 where 0 <> 0;
+36 T0 S7: select 1 from (select 1) as subq_0 where 0 <> 0;
+37 T0 S8: COMMIT;
+retrying process begin...
+retrying process end...
+38 T5 S4: SELECT * FROM t_fuaclc;
+39 T5 S5: SELECT * FROM t_mivbu;
+40 T5 S6: select     t_mivbu.wkey as c0,    t_mivbu.pkey as c1,    t_mivbu.c_ik58hd as c2 from    t_mivbu wher
+41 T5 S7: update t_mivbu set    wkey = 93,    c_ik58hd = COT(     case when (t_mivbu.pkey >= case when (((0 <>
+42 T5 S8: select     t_mivbu.wkey as c0,    t_mivbu.pkey as c1,    t_mivbu.c_ik58hd as c2 from    t_mivbu wher
+43 T5 S9: COMMIT;
+retrying process begin...
+retrying process end...
+44 T1 S0: START TRANSACTION;
+45 T1 S1: SELECT * FROM t_fuaclc;
+46 T1 S2: insert into t_mivbu (wkey, pkey, c_ik58hd) values  (76, 383000, case when case when 1 = 1 or (select
+47 T1 S3: select     t_mivbu.wkey as c0,    t_mivbu.pkey as c1,    t_mivbu.c_ik58hd as c2 from    t_mivbu wher
+48 T1 S4: select 1 from (select 1) as subq_0 where 0 <> 0;
+49 T1 S5: select 1 from (select 1) as subq_0 where 0 <> 0;
+50 T1 S6: COMMIT;
+retrying process begin...
+retrying process end...
+check transaction dependency ... done
+the test case contains cycle and cannot be properly sorted
+No
+
+
+
+
+数据库调度导致出现环而无法解决① 9
+-BUG 3
+transaction test
+0 T1 S0: START TRANSACTION;
+1 T1 S1: SELECT * FROM t_fuaclc;
+2 T1 S2: insert into t_mivbu (wkey, pkey, c_ik58hd) values  (81, 385000, ASIN(   46.80)),  (81, 386000, 11.48
+3 T1 S3: select     t_mivbu.wkey as c0,    t_mivbu.pkey as c1,    t_mivbu.c_ik58hd as c2 from    t_mivbu wher
+4 T3 S0: START TRANSACTION;
+5 T4 S0: START TRANSACTION;
+6 T3 S1: SELECT * FROM t_fuaclc;
+7 T3 S2: SELECT * FROM t_mivbu;
+8 T3 S3: WITH  cte_0 AS (select       ref_0.wkey as c0,      ref_0.pkey as c1,      ref_0.c_sms4ob as c2,    
+9 T1 S4: SELECT * FROM t_fuaclc;
+10 T1 S5: select     t_fuaclc.wkey as c0,    t_fuaclc.pkey as c1,    t_fuaclc.c_sms4ob as c2,    t_fuaclc.c_6f
+11 T1 S6: update t_fuaclc set    wkey = 84,    c_osfw2c = t_fuaclc.c_6fc4nc where 1 = 1;
+12 T1 S7: select     t_fuaclc.wkey as c0,    t_fuaclc.pkey as c1,    t_fuaclc.c_sms4ob as c2,    t_fuaclc.c_6f
+13 T4 S1: SELECT * FROM t_mivbu;
+14 T4 S2: select     ref_0.wkey as c0,    ref_0.pkey as c1,    ref_0.c_ik58hd as c2 from    t_mivbu as ref_0 w
+15 T1 S8: COMMIT;
+retrying process begin...
+retrying process end...
+16 T3 S4: select 1 from (select 1) as subq_0 where 0 <> 0;
+17 T3 S5: select 1 from (select 1) as subq_0 where 0 <> 0;
+18 T3 S6: select 1 from (select 1) as subq_0 where 0 <> 0;
+19 T3 S7: select 1 from (select 1) as subq_0 where 0 <> 0;
+20 T0 S0: START TRANSACTION;
+21 T3 S8: COMMIT;
+retrying process begin...
+retrying process end...
+22 T0 S1: SELECT * FROM t_fuaclc;
+23 T0 S2: insert into t_mivbu (wkey, pkey, c_ik58hd) values  (74, 378000, case when 12 <> 70 then 68.98 else (
+24 T0 S3: select     t_mivbu.wkey as c0,    t_mivbu.pkey as c1,    t_mivbu.c_ik58hd as c2 from    t_mivbu wher
+25 T5 S0: START TRANSACTION;
+26 T0 S4: ROLLBACK;
+retrying process begin...
+retrying process end...
+27 T4 S3: SELECT * FROM t_mivbu;
+28 T4 S4: select     t_mivbu.wkey as c0,    t_mivbu.pkey as c1,    t_mivbu.c_ik58hd as c2 from    t_mivbu wher
+29 T4 S5: update t_mivbu set    wkey = 94,    c_ik58hd = PI() where 1 = 1;
+30 T4 S6: select     t_mivbu.wkey as c0,    t_mivbu.pkey as c1,    t_mivbu.c_ik58hd as c2 from    t_mivbu wher
+31 T4 S7: COMMIT;
+retrying process begin...
+retrying process end...
+32 T2 S0: START TRANSACTION;
+33 T2 S1: SELECT * FROM t_fuaclc;
+34 T2 S2: SELECT * FROM t_mivbu;
+35 T2 S3: select     t_fuaclc.wkey as c0,    t_fuaclc.pkey as c1,    t_fuaclc.c_sms4ob as c2,    t_fuaclc.c_6f
+36 T2 S4: update t_fuaclc set    wkey = 87,    c_sms4ob = case when (t_fuaclc.c_6fc4nc in (         select    
+37 T2 S5: select     t_fuaclc.wkey as c0,    t_fuaclc.pkey as c1,    t_fuaclc.c_sms4ob as c2,    t_fuaclc.c_6f
+38 T2 S6: SELECT * FROM t_mivbu;
+39 T2 S7: select     t_mivbu.wkey as c0,    t_mivbu.pkey as c1,    t_mivbu.c_ik58hd as c2 from    t_mivbu wher
+40 T2 S8: delete from t_mivbu where  t_mivbu.pkey <> 90;
+41 T2 S9: ROLLBACK;
+retrying process begin...
+retrying process end...
+42 T5 S1: SELECT * FROM t_mivbu;
+43 T5 S2: select     t_mivbu.wkey as c0,    t_mivbu.pkey as c1,    t_mivbu.c_ik58hd as c2 from    t_mivbu wher
+44 T5 S3: delete from t_mivbu where  t_mivbu.pkey >= t_mivbu.pkey;
+45 T5 S4: SELECT * FROM t_fuaclc;
+46 T5 S5: select     t_fuaclc.wkey as c0,    t_fuaclc.pkey as c1,    t_fuaclc.c_sms4ob as c2,    t_fuaclc.c_6f
+47 T5 S6: delete from t_fuaclc where  t_fuaclc.wkey between t_fuaclc.wkey and t_fuaclc.pkey;
+48 T5 S7: ROLLBACK;
+retrying process begin...
+retrying process end...
+check transaction dependency ... done
+the test case contains cycle and cannot be properly sorted
+No
+
+
+
+
+数据库调度导致出现环而无法解决① 10
+-BUG 4
+transaction test
+0 T3 S0: START TRANSACTION;
+1 T0 S0: START TRANSACTION;
+2 T4 S0: START TRANSACTION;
+3 T4 S1: SELECT * FROM t_bswddb;
+4 T4 S2: SELECT * FROM t_rdjxk;
+5 T4 S3: select     t_bswddb.wkey as c0,    t_bswddb.pkey as c1,    t_bswddb.c_7nrilb as c2,    t_bswddb.c_j_
+6 T4 S4: update t_bswddb set    wkey = 106,    c_j_1la = t_bswddb.c_yf9h2c,    c_yf9h2c = t_bswddb.c_ndm7oc, 
+7 T4 S5: select     t_bswddb.wkey as c0,    t_bswddb.pkey as c1,    t_bswddb.c_7nrilb as c2,    t_bswddb.c_j_
+8 T3 S1: SELECT * FROM t_bswddb;
+9 T3 S2: SELECT * FROM t_rdjxk;
+10 T3 S3: select     ref_0.wkey as c0,    ref_0.pkey as c1,    ref_0.c_7nrilb as c2,    ref_0.c_j_1la as c3,  
+11 T4 S6: SELECT * FROM t_bswddb;
+12 T4 S7: SELECT * FROM t_rdjxk;
+13 T4 S8: select     t_bswddb.wkey as c0,    t_bswddb.pkey as c1,    t_bswddb.c_7nrilb as c2,    t_bswddb.c_j_
+14 T4 S9: update t_bswddb set    wkey = 115,    c_j_1la = case when 1 = 1 then t_bswddb.pkey else t_bswddb.c_n
+15 T4 S10: select     t_bswddb.wkey as c0,    t_bswddb.pkey as c1,    t_bswddb.c_7nrilb as c2,    t_bswddb.c_j_
+16 T4 S11: COMMIT;
+retrying process begin...
+retrying process end...
+17 T0 S1: select 1 from (select 1) as subq_0 where 0 <> 0;
+18 T0 S2: select 1 from (select 1) as subq_0 where 0 <> 0;
+19 T0 S3: select 1 from (select 1) as subq_0 where 0 <> 0;
+20 T0 S4: select 1 from (select 1) as subq_0 where 0 <> 0;
+21 T0 S5: select 1 from (select 1) as subq_0 where 0 <> 0;
+22 T0 S6: SELECT * FROM t_rdjxk;
+23 T0 S7: select     ref_0.wkey as c0,    ref_0.pkey as c1,    ref_0.c_hwtlkc as c2,    ref_0.c_emi_qb as c3, 
+24 T0 S8: COMMIT;
+retrying process begin...
+retrying process end...
+25 T1 S0: START TRANSACTION;
+26 T5 S0: START TRANSACTION;
+27 T3 S4: SELECT * FROM t_rdjxk;
+28 T3 S5: insert into t_bswddb (wkey, pkey, c_7nrilb, c_j_1la, c_ndm7oc, c_ddpni, c_9sjd0c) values  (105, 4810
+29 T3 S6: select     t_bswddb.wkey as c0,    t_bswddb.pkey as c1,    t_bswddb.c_7nrilb as c2,    t_bswddb.c_j_
+30 T5 S1: SELECT * FROM t_bswddb;
+31 T5 S2: SELECT * FROM t_rdjxk;
+32 T5 S3: WITH  cte_0 AS (select       ref_0.wkey as c0,      ref_0.pkey as c1,      ref_0.c_7nrilb as c2,    
+33 T2 S0: START TRANSACTION;
+34 T3 S7: COMMIT;
+retrying process begin...
+retrying process end...
+35 T5 S4: SELECT * FROM t_bswddb;
+36 T5 S5: SELECT * FROM t_rdjxk;
+37 T5 S6: select     t_bswddb.wkey as c0,    t_bswddb.pkey as c1,    t_bswddb.c_7nrilb as c2,    t_bswddb.c_j_
+38 T5 S7: update t_bswddb set    wkey = 146,    c_yf9h2c = t_bswddb.pkey,    c_ndm7oc = t_bswddb.c_j_1la,    c
+39 T5 S8: select     t_bswddb.wkey as c0,    t_bswddb.pkey as c1,    t_bswddb.c_7nrilb as c2,    t_bswddb.c_j_
+40 T5 S9: COMMIT;
+retrying process begin...
+retrying process end...
+41 T1 S1: SELECT * FROM t_rdjxk;
+42 T1 S2: insert into t_bswddb (wkey, pkey, c_j_1la, c_yf9h2c, c_ndm7oc, c_wzhcac, c_ddpni, c_9sjd0c) values  
+43 T1 S3: select     t_bswddb.wkey as c0,    t_bswddb.pkey as c1,    t_bswddb.c_7nrilb as c2,    t_bswddb.c_j_
+44 T2 S1: SELECT * FROM t_rdjxk;
+45 T2 S2: insert into t_bswddb (wkey, pkey, c_j_1la, c_ndm7oc, c_wzhcac, c_ddpni, c_9sjd0c) values  (100, 4760
+46 T2 S3: select     t_bswddb.wkey as c0,    t_bswddb.pkey as c1,    t_bswddb.c_7nrilb as c2,    t_bswddb.c_j_
+47 T2 S4: ROLLBACK;
+retrying process begin...
+retrying process end...
+48 T1 S4: select 1 from (select 1) as subq_0 where 0 <> 0;
+49 T1 S5: select 1 from (select 1) as subq_0 where 0 <> 0;
+50 T1 S6: select 1 from (select 1) as subq_0 where 0 <> 0;
+51 T1 S7: select 1 from (select 1) as subq_0 where 0 <> 0;
+52 T1 S8: select 1 from (select 1) as subq_0 where 0 <> 0;
+53 T1 S9: COMMIT;
+retrying process begin...
+retrying process end...
+check transaction dependency ... done
+the test case contains cycle and cannot be properly sorted
+No
+
+
+
+
+因依赖关系分析顺序有误导致误报② 5
+-BUG 5 非BUG，分析顺序有误
+transaction test
+0 T0 S0: START TRANSACTION;
+1 T1 S0: START TRANSACTION;
+2 T1 S1: SELECT * FROM t_4cioad;
+3 T1 S2: select     ref_0.wkey as c0,    ref_0.pkey as c1,    ref_0.c_u5cl7d as c2,    ref_0.c_w3yee as c3 fr
+4 T0 S1: SELECT * FROM t_5wqatb;
+5 T0 S2: insert into t_4cioad (wkey, pkey, c_u5cl7d, c_w3yee) values  (113, 591000, SIGN(   (select c_q_kflb 
+6 T0 S3: select     t_4cioad.wkey as c0,    t_4cioad.pkey as c1,    t_4cioad.c_u5cl7d as c2,    t_4cioad.c_w3
+7 T0 S4: COMMIT;
+retrying process begin...
+retrying process end...
+8 T1 S3: SELECT * FROM t_4cioad;
+9 T1 S4: select     t_4cioad.wkey as c0,    t_4cioad.pkey as c1,    t_4cioad.c_u5cl7d as c2,    t_4cioad.c_w3
+10 T1 S5: update t_4cioad set    wkey = 136,    c_u5cl7d = SIGN(     PI()) where t_4cioad.c_u5cl7d >= t_4cioad
+11 T1 S6: select     t_4cioad.wkey as c0,    t_4cioad.pkey as c1,    t_4cioad.c_u5cl7d as c2,    t_4cioad.c_w3
+12 T1 S7: COMMIT;
+retrying process begin...
+retrying process end...
+check transaction dependency ... done
+stmt path for normal test: (1.1)-1IN|->(1.2)-2RW|2OW|->(1.3)-2IN|->(1.4)-1IN|->(1.5)-1IN|->(1.6)-2OW|->(0.1)-1IN|->(0.2)-1IN|->(0.3)-->
+normal testing ... done
+stmt[5] output sizes are not equel: 33 31
+txn output is not equal to normal stmt one
+Find bugs in check_normal_stmt_result
+Succeed to delete stmt 
+============================
+item name: stmt[5]
+A result: 
+    136    507000    1    9w2ced    136    508000    1    xe5rpc    136    509000    1    zw5rd    136    510000    1    NULL    136    511000    1    ren8yb    136    512000    1    mpyy_c    136    513000    1    3patbb    136    522000    1    nbb0zb    136    523000    1    l_0xzb    136    524000    1    fpcldd    136    525000    1    7sepvc    136    526000    1    hbgnkd    136    527000    1    pex2vc    136    528000    1    6717ld    136    529000    1    yfxfv    136    536000    1    ao8bhd    136    537000    1    ii7s_b    136    538000    1    NULL    136    539000    1    NULL    136    540000    1    ur0ka    136    541000    1    meigrb    136    545000    1    NULL    136    546000    1    NULL    136    547000    1    NULL    136    548000    1    NULL    136    549000    1    NULL    136    550000    1    NULL    136    556000    1    aywidb    136    557000    1    8ohp1    136    558000    1    hh_he    136    559000    1    wmisbc    136    592000    1    0    136    593000    1    t5a48d
+B result: 
+    136    507000    1    9w2ced    136    508000    1    xe5rpc    136    509000    1    zw5rd    136    510000    1    NULL    136    511000    1    ren8yb    136    512000    1    mpyy_c    136    513000    1    3patbb    136    522000    1    nbb0zb    136    523000    1    l_0xzb    136    524000    1    fpcldd    136    525000    1    7sepvc    136    526000    1    hbgnkd    136    527000    1    pex2vc    136    528000    1    6717ld    136    529000    1    yfxfv    136    536000    1    ao8bhd    136    537000    1    ii7s_b    136    538000    1    NULL    136    539000    1    NULL    136    540000    1    ur0ka    136    541000    1    meigrb    136    545000    1    NULL    136    546000    1    NULL    136    547000    1    NULL    136    548000    1    NULL    136    549000    1    NULL    136    550000    1    NULL    136    556000    1    aywidb    136    557000    1    8ohp1    136    558000    1    hh_he    136    559000    1    wmisbc
